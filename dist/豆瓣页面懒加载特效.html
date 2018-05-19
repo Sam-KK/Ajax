@@ -1,0 +1,191 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>文档标题</title>
+    <!-- 360 使用Google Chrome Frame -->
+    <meta name="renderer" content="webkit">
+    <!-- 优先使用 IE 最新版本和 Chrome -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <!-- 开启响应式 -->
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <!-- SEO页面关键词 -->
+    <meta name="keywords" content="keywords">
+    <!-- SEO页面描述 -->
+    <meta name="description" content="description">
+    <link rel="stylesheet" type="text/css" href="css/common.css">
+    <link rel="stylesheet" type="text/css" href="css/douban.css">
+</head>
+
+<body>
+    <!--
+	需求分析：
+		0、初始化项目
+			1、初始化盒子宽度
+			2、获取浏览器宽度
+			3、初始化函数
+			4、设置container 宽度
+		1、获取数据
+			ajax 数据交互
+				1、url 地址
+					http://120.77.174.93/dbmovie
+				2、参数
+					从第几条开始请求start， 请求多少条count
+				3、success 回掉函数 数据接收的
+			ajax 二次封装
+				json 回调
+
+		2、整理数据
+			译名: title
+			原名: original_title
+			分数:
+			年份: year
+			图片路径: coverimg
+
+			1、遍历数组
+			2、数据拆分
+			3、数据重组
+		3、渲染数据
+			1、数据解析 DOM操作
+		4、瀑布流算法
+			1、初始化 arrTop 和 arrLeft d动态数组
+		5、懒加载处理
+		6、缓存代理机制
+-->
+    <div class="container"></div>
+    <script type="text/javascript" src="js/myAjax.js"></script>
+    <script type="text/javascript">
+        var width = 200, //单条元素宽度
+            space = 10, // 间隙
+            outerWidth = width + space,
+            num = 0, // 一行放几个
+            container = document.querySelector(".container"),
+            wW = window.innerWidth, // 浏览器宽度
+            arrTop = [],
+            arrLeft = [];
+
+        const URL = 'http://120.77.174.93/dbmovie', // URL
+            count = 20; // 每次请求数据的数量
+
+        cells();
+        //renderData();
+        // 3、渲染数据
+        function renderData(data) {
+            // 递归渲染数据
+            var index = 0;
+            var len = data.length;
+
+            // IIFE 函数自执行 ()() ~~()
+            ~~ function recur() {
+                var item = data[index];
+                var div = document.createElement('div'); // 创建div
+                div.className = "movie";
+                div.innerHTML = `
+				<a class="img-box" href="" title="">
+					<img src="${item.coverimg}" alt="">
+				</a>
+				<p class="year">
+					<i>${item.year}</i>
+					<span>${item.original_title}</span>
+				</p>
+				<p class="movie-info">
+					<span class="title">${item.title}</span>
+					<span class="score">${item.score}</span>
+				</p>
+			`;
+                div.style.top = arrTop[index] + "px";
+                div.style.left = arrLeft[index] + "px";
+                container.appendChild(div);
+                div.querySelector('img').onload = function() {
+                    div.style.top = arrTop[index] + "px";
+                    div.style.left = arrLeft[index] + "px";
+                }
+                index++;
+                if (index < len) {
+                    recur();
+                }
+            }();
+
+        }
+        // 2、整理数据
+        function formatData(data) {
+            var movie = []; // 空数组
+            console.log('这里是整理数据' + data);
+
+            // 遍历原始数据
+            data.forEach(function(item) {
+                console.log(item);
+                movie.push({
+                    title: item.title,
+                    coverimg: item.images.large,
+                    original_title: item.original_title,
+                    year: item.year,
+                    score: item.rating.average
+                });
+            });
+            console.log(movie);
+            return movie;
+        }
+        // 1、数据获取 调用插件myAjax
+        function getData(opt) {
+            myAjax({
+                url: URL,
+                data: opt.data,
+                method: 'GET',
+                success: function(response) {
+                    // console.log(response); // string jsonString
+                    var data = JSON.parse(response);
+                    // console.log(data);
+                    opt['callBack'] && opt['callBack'](data);
+                }
+            });
+        }
+        // 执行获取数据
+        getData({
+            data: {
+                start: 0
+            },
+            callBack: function(response) {
+                console.log(response);
+
+                // 整理好的数据
+                var movie = formatData(response);
+                // 把整理好的数据进行渲染
+                renderData(movie);
+                console.log(movie);
+            }
+        });
+        // 0、格式整理
+        function cells() {
+            num = ~~(wW / outerWidth); // 算几列
+            console.log(num);
+            container.style.width = num * outerWidth - space;
+            for (var i = 0; i < num; i++) {
+                arrTop.push(0);
+                arrTop.push(i * outerWidth);
+            }
+        }
+    </script>
+
+    <!--
+	querySelector 单一元素
+	querySelectorAll 元素集合
+
+	getElementById
+	getElementByClassName
+
+	1、用法 类似 $ 选择器 class 选择器
+	2、兼容性 H5 DOM 扩展API IE8+
+	3、性能 getElement(1) > query(5) > $(10)
+		get动态 query & $() 静态
+
+	ajax 异步数据通讯
+
+	const 常量
+
+	`` ES6 语法
+		${变量}
+-->
+</body>
+
+</html>

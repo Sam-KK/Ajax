@@ -1,0 +1,95 @@
+{
+	// Default options
+	'functions': true,
+	'variableNameTransforms': ['dasherize']
+}
+
+{{#each sprites}}
+@{{strings.name_name}}: '{{name}}';
+@{{strings.name_x}}: {{px.x}};
+@{{strings.name_y}}: {{px.y}};
+@{{strings.name_offset_x}}: {{px.offset_x}};
+@{{strings.name_offset_y}}: {{px.offset_y}};
+@{{strings.name_width}}: {{px.width}};
+@{{strings.name_height}}: {{px.height}};
+@{{strings.name_total_width}}: {{px.total_width}};
+@{{strings.name_total_height}}: {{px.total_height}};
+@{{strings.name_image}}: '{{{escaped_image}}}';
+@{{strings.name}}: {{px.x}} {{px.y}} {{px.offset_x}} {{px.offset_y}} {{px.width}} {{px.height}} {{px.total_width}} {{px.total_height}} '{{{escaped_image}}}' '{{name}}';
+{{/each}}
+
+
+@{{spritesheet_info.strings.name_width}}: {{spritesheet.px.width}};
+@{{spritesheet_info.strings.name_height}}: {{spritesheet.px.height}};
+@{{spritesheet_info.strings.name_image}}: '{{{spritesheet.escaped_image}}}';
+@{{spritesheet_info.strings.name_sprites}}:{{#each sprites}} @{{strings.name}}{{/each}};
+@{{spritesheet_info.strings.name}}: {{spritesheet.px.width}} {{spritesheet.px.height}} '{{{spritesheet.escaped_image}}}' @{{spritesheet_info.strings.name_sprites}};
+
+
+
+{{#each retina_sprites}}
+@{{strings.name_name}}: '{{name}}';
+@{{strings.name_x}}: {{px.x}};
+@{{strings.name_y}}: {{px.y}};
+@{{strings.name_offset_x}}: {{px.offset_x}};
+@{{strings.name_offset_y}}: {{px.offset_y}};
+@{{strings.name_width}}: {{px.width}};
+@{{strings.name_height}}: {{px.height}};
+@{{strings.name_total_width}}: {{px.total_width}};
+@{{strings.name_total_height}}: {{px.total_height}};
+@{{strings.name_image}}: '{{{escaped_image}}}';
+@{{strings.name}}: {{px.x}} {{px.y}} {{px.offset_x}} {{px.offset_y}} {{px.width}} {{px.height}} {{px.total_width}} {{px.total_height}} '{{{escaped_image}}}' '{{name}}';
+{{/each}}
+
+
+@{{retina_spritesheet_info.strings.name_width}}: {{retina_spritesheet.px.width}};
+@{{retina_spritesheet_info.strings.name_height}}: {{retina_spritesheet.px.height}};
+@{{retina_spritesheet_info.strings.name_image}}: '{{{retina_spritesheet.escaped_image}}}';
+@{{retina_spritesheet_info.strings.name_sprites}}:{{#each retina_sprites}} @{{strings.name}}{{/each}};
+@{{retina_spritesheet_info.strings.name}}: {{retina_spritesheet.px.width}} {{retina_spritesheet.px.height}} '{{{retina_spritesheet.escaped_image}}}' @{{retina_spritesheet_info.strings.name_sprites}};
+
+
+{{#each retina_groups}}
+@{{strings.name_group_name}}: '{{name}}';
+@{{strings.name_group}}: '{{name}}' @{{normal.strings.name}} @{{retina.strings.name}};
+{{/each}}
+@{{retina_groups_info.strings.name}}:{{#each retina_groups}} @{{strings.name_group}}{{/each}};
+
+
+
+
+.sprite-width(@sprite) {
+	width: extract(@sprite, 5);
+}
+
+.sprite-height(@sprite) {
+	height: extract(@sprite, 6);
+}
+
+.sprite-position(@sprite) {
+	@sprite-offset-x: extract(@sprite, 3);
+	@sprite-offset-y: extract(@sprite, 4);
+	background-position: @sprite-offset-x @sprite-offset-y;
+}
+
+.sprite(@sprite) {
+	.sprite-position(@sprite);
+	.sprite-width(@sprite);
+	.sprite-height(@sprite);
+}
+
+
+.sprite-background-size(@sprite) {
+	@sprite-total-width: extract(@sprite, 7);
+	@sprite-total-height: extract(@sprite, 8);
+	background-size: @sprite-total-width @sprite-total-height;
+}
+
+.icon-size(){
+	background-size: @spritesheet-width @spritesheet-height;
+}
+
+.retina-sprite(@retina-sprite) {
+    .sprite-position(@retina-sprite);
+	.sprite-background-size(@retina-sprite);
+}

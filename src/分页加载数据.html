@@ -1,0 +1,151 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>文档标题</title>
+	<!-- 360 使用Google Chrome Frame -->
+	<meta name="renderer" content="webkit">
+	<!-- 优先使用 IE 最新版本和 Chrome -->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<!-- 开启响应式 -->
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<!-- SEO页面关键词 -->
+	<meta name="keywords" content="keywords">
+	<!-- SEO页面描述 -->
+	<meta name="description" content="description">
+	<link rel="stylesheet" type="text/css" href="css/common.css">
+	<link rel="stylesheet" type="text/css" href="css/pageData.css">
+</head>
+<body>
+<div class="container">
+	<div class="row">
+		<div class="list-group" id="group"></div>
+	</div>
+	<div class="row">
+		<ul class="page" id="page">
+			<li data-password='576ED26FD9388C52E967760E63DE73B3'>1</li>
+			<li data-password='AAB337BB39F4FE470EF42F01273BF9D1'>2</li>
+			<li data-password='CCD69C16602985D2DC50D6B0B3BCF285'>3</li>
+			<li data-password='5613C8A41998E324E65F5F1A8E1BB897'>4</li>
+			<li data-password='AE1C94449A1B7067EC8154CA5C714505'>5</li>
+			<li data-password='47D99E0321791452F1D8BA1FA9C17B78'>6</li>
+			<li data-password='E91585D924FF30AA030139CFF4EA1001'>7</li>
+			<li data-password='C39F2311A02171CB00D90E2E0EF4F01D'>8</li>
+		</ul>
+	</div>
+</div>
+<!--
+		需求分析
+		1、ajax获取数据
+			1、ajax
+				1. url
+				2. xhr xmlHttpRequest 对象
+				3. send get post
+				4. onreadystatechange  jsosn.parse 解析  JSON.parse() 解析JSON字符串
+				5. 封装 getData 方法
+
+				参数数组 params =  [];
+				sendData = {
+					show: '1245',
+					show_sign: '243',
+					page: 1,
+					num: 8
+				}
+				json 转换为字符串
+				for (var key in sendData) {
+					params.push(key+'='+sendData[key]);
+				}
+				postData = params.join('&');
+		2、整理数据
+			list 数组
+		3、渲染数据 json DOM解析
+
+		4、分页处理
+			事件委托
+			a.addEventLister('click', function(e){
+				if(e.target.tagName.toLowerCase() === 'li') {
+					page = e.target.innerText(); 1、2、3、4
+					getDsta(); 获取数据
+				}
+			})
+		5、缓存代理改造
+			1、获取之前先判断
+			2、获取之后先存储
+
+		URL = https://route.showapi.com/181-1 数据接口地址
+	-->
+	<script type="text/javascript">
+		var URL = 'https://route.showapi.com/181-1?',
+			group = document.getElementById('group'),
+			pageUl = document.getElementById('page'),
+			postData = null,
+			showapi_sign = '576ED26FD9388C52E967760E63DE73B3',
+			page = 1;
+
+
+		// 分页  事件代理
+		pageUl.addEventListener('click', function (e) {
+			// console.log(e);
+			if (e.target.tagName.toLowerCase() === 'li') {
+				showapi_sign = e.target.getAttribute("data-password");
+				console.log(showapi_sign);
+				page = e.target.innerHTML;
+				console.log(page);
+				getData(); // 获取数据
+			}
+		}, false);
+
+		// 获取数据 向服务器发送请求
+		function getData() {
+			var xmlHttp = new XMLHttpRequest();
+			var params = [];
+			var sendData = {
+				showapi_appid: '30603',
+				showapi_sign: showapi_sign,
+				page: page,
+				num: 8
+			};
+			// json 转换为字符串
+			for (var key in sendData) {
+				//console.log(key + '=' + sendData[key]);
+				params.push(key + '=' + sendData[key]);
+				//console.log(params);
+			}
+			postData = params.join('&');
+			xmlHttp.open('GET', URL + postData, true);
+			xmlHttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+			xmlHttp.send(null);
+			xmlHttp.onreadystatechange = function () {
+				if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+					// console.log(xmlHttp.response); // 返回json字符串
+					var data = JSON.parse(xmlHttp.response);
+					// console.log(data);
+					var dataList = data.showapi_res_body.newslist;
+					// console.log(dataList);
+
+					renderData(dataList);
+				}
+			}
+		}
+		getData();
+
+		// 渲染数据
+		function renderData(dataList) {
+			var str = '';
+			for (var i = 0, len = dataList.length; i < len; i++) {
+				var item = dataList[i];
+				// console.log(item);
+				str +=`
+					<a class="group-item" href="${item.url}">
+						<img src="${item.picUrl}" alt="">
+						<div class="item-info">
+							<p class="title">${item.title}</p>
+							<span class="time">${item.ctime}</span>
+						</div>
+					</a>
+				`;
+				group.innerHTML = str;
+			}
+		}
+	</script>
+</body>
+</html>
